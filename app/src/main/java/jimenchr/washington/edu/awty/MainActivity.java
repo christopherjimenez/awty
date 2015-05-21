@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.telephony.SmsManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -38,7 +39,9 @@ public class MainActivity extends ActionBarActivity {
         alarmReciever = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                Toast.makeText(MainActivity.this, phoneNumber + " : " + text, Toast.LENGTH_SHORT).show();
+                SmsManager manager = SmsManager.getDefault();
+                manager.sendTextMessage(phoneNumber,null,text,null,null);
+                //Toast.makeText(MainActivity.this, phoneNumber + " : " + text, Toast.LENGTH_SHORT).show();
             }
         };
         registerReceiver(alarmReciever, new IntentFilter("jimenchr.washington.edu.alarms"));
@@ -55,7 +58,7 @@ public class MainActivity extends ActionBarActivity {
                 if(!start) {
                     validatedFields();
                     if(text != null && phoneNumber != null && frequency > 0) {
-                        am.setRepeating(AlarmManager.RTC, System.currentTimeMillis() - frequency, frequency, pi);
+                        am.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis() - frequency, frequency, pi);
                         button.setText("Stop");
                         start = true;
                     }
@@ -109,5 +112,6 @@ public class MainActivity extends ActionBarActivity {
         super.onDestroy();
         am.cancel(pi);
         pi.cancel();
+        unregisterReceiver(alarmReciever);
     }
 }
